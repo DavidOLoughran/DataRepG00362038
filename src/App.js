@@ -10,6 +10,7 @@ import { Navbar, Nav } from 'react-bootstrap';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import { Create } from './components/create';
 import { Read } from './components/read';
+import { Edit } from './components/edit';
 
 
 class App extends Component {
@@ -19,11 +20,11 @@ class App extends Component {
         <div className="App">
 
           <Navbar bg="primary" variant="dark">
-            <Navbar.Brand href="#home">Navbar</Navbar.Brand>
+            <Navbar.Brand href="/">UFC</Navbar.Brand>
             <Nav className="mr-auto">
               <Nav.Link href="/">Home</Nav.Link>
-              <Nav.Link href="/read">Read</Nav.Link>
-              <Nav.Link href="/create">Create</Nav.Link>
+              <Nav.Link href="/read">Fighter Database</Nav.Link>
+              <Nav.Link href="/create">Add Fighter</Nav.Link>
             </Nav>
           </Navbar>
 
@@ -32,6 +33,7 @@ class App extends Component {
             <Route path='/' component={Content} exact />
             <Route path='/create' component={Create} exact />
             <Route path='/read' component={Read} exact />
+            <Route path='/edit/:id' component={Edit}></Route>
           </Switch>
         </div>
       </Router>

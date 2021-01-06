@@ -1,17 +1,33 @@
 import React from 'react';
-import { Movies } from './movies';
+import { Fighters } from './fighters';
 import axios from 'axios';
 
 export class Read extends React.Component {
 
+    constructor(){
+        super();
+        this.ReloadData = this.ReloadData.bind(this);
+    }
+
+
     state = {
-        movies: []
+        fighters: []
     };
 
-    componentDidMount() {
-        axios.get('http://localhost:4000/api/movies')
+    ReloadData(){
+        axios.get('http://localhost:4000/api/fighters')
             .then((response) => {
-                this.setState({ movies: response.data.mymovies })
+                this.setState({ fighters: response.data })
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+    }
+
+    componentDidMount() {
+        axios.get('http://localhost:4000/api/fighters')
+            .then((response) => {
+                this.setState({ fighters: response.data})
             })
             .catch((error) => {
                 console.log(error)
@@ -21,8 +37,8 @@ export class Read extends React.Component {
     render() {
         return (
             <div>
-                <h1>This is the read component.</h1>
-                <Movies movies={this.state.movies}></Movies>
+                <h1>UFC Fighters Database</h1>
+                <Fighters fighters={this.state.fighters} ReloadData={this.ReloadData}></Fighters>
             </div>
         );
     }

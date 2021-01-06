@@ -3,8 +3,12 @@ const app = express()
 const port = 4000
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const path = require('path');
 
-
+//Tells app where to find the build and static folders
+app.use(express.static(path.join(__dirname, '../build')));
+app.use('/static', express.static(path.join(__dirname, 'build/static')));
 
 app.use(cors());
 app.use(function (req, res, next) {
@@ -21,49 +25,73 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
+//Connecting to Mongoose database
+const myConnectionString = 'mongodb+srv://admin:admin@cluster0.tmyqd.mongodb.net/ufcFighters?retryWrites=true&w=majority';
+mongoose.connect(myConnectionString, {useNewUrlParser: true});
+
+const Schema = mongoose.Schema;
+const fighterSchema = new Schema({
+    Name:String,
+    Age:String,
+    Poster:String
+});
+
+var fighterModel = mongoose.model('fighter', fighterSchema);
+
+
+app.get('/api/fighters', (req, res) => {
+
+    fighterModel.find((err,data)=>{
+        res.json(data);
+    })
+    
 })
 
-app.get('/api/movies', (req, res) => {
-    const movies = [
-        {
-            "Title": "Avengers: Infinity War",
-            "Year": "2018",
-            "imdbID": "tt4154756",
-            "Type": "movie",
-            "Poster": "https://m.media-amazon.com/images/M/MV5BMjMxNjY2MDU1OV5BMl5BanBnXkFtZTgwNzY1MTUwNTM@._V1_SX300.jpg"
-        },
-        {
-            "Title": "Captain America: Civil War",
-            "Year": "2016",
-            "imdbID": "tt3498820",
-            "Type": "movie",
-            "Poster": "https://m.media-amazon.com/images/M/MV5BMjQ0MTgyNjAxMV5BMl5BanBnXkFtZTgwNjUzMDkyODE@._V1_SX300.jpg"
-        },
-        {
-            "Title": "World War Z",
-            "Year": "2013",
-            "imdbID": "tt0816711",
-            "Type": "movie",
-            "Poster": "https://m.media-amazon.com/images/M/MV5BNDQ4YzFmNzktMmM5ZC00MDZjLTk1OTktNDE2ODE4YjM2MjJjXkEyXkFqcGdeQXVyNTA4NzY1MzY@._V1_SX300.jpg"
-        },
-        {
-            "Title": "War of the Worlds",
-            "Year": "2005",
-            "imdbID": "tt0407304",
-            "Type": "movie",
-            "Poster": "https://m.media-amazon.com/images/M/MV5BNDUyODAzNDI1Nl5BMl5BanBnXkFtZTcwMDA2NDAzMw@@._V1_SX300.jpg"
-        }
-    ]
-    res.json({
-        mymovies: movies
+app.get('/api/fighters/:id',(req, res)=>{
+
+    console.log(req.params.id);
+
+    fighterModel.findById(req.params.id, (err,data)=>{
+        res.json(data);
     })
 })
 
-app.post('/api/movies', (req, res) => {
+app.put('/api/fighters/:id',(req,res)=>{
+    console.log("Update "+req.params.id);
+
+    fighterModel.findByIdAndUpdate(req.params.id,
+        req.body,
+        (err,data)=>{
+            res.status(201).send(data);
+        })
+})
+
+app.delete('/api/fighters/:id', (req, res)=>{
+    console.log(req.params.id);
+
+    fighterModel.findByIdAndDelete({_id:req.params.id},
+         (err, data)=>{
+        res.send(data);
+    })
+})
+
+app.post('/api/fighters', (req, res) => {
     console.log(req.body);
+
+    fighterModel.create({
+        Name:req.body.Name,
+        Age:req.body.Age,
+        Poster:req.body.Poster
+    })
+    .then()
+    .catch();
+
     res.send('Data Recieved!');
+})
+
+//Shows app where to find index.html
+app.get('*', (req,res)=>{
+    res.sendFile(path.join(__dirname+'/../build/index.html'));
 })
 
 app.listen(port, () => {
